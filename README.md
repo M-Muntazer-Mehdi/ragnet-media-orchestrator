@@ -1,4 +1,4 @@
-# ragnet-media-orchestrator
+# Ragnet-Media-Orchestrator
 
 An **AI-powered, event-driven content automation system** built with **n8n, OpenAI GPT-4o, SERP API**, and **Puppeteer**.  
 This modular pipeline enables automated content extraction, trend-aware generation, and AI-assisted publishing for personal branding and social growth.
