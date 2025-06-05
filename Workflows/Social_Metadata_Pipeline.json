@@ -1,0 +1,1125 @@
+{
+  "name": "Social Metadata Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "d94b9a9d-00b4-4590-97b5-35e237d8d478",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -340,
+        -80
+      ],
+      "id": "63e98322-8511-4ceb-ae2d-88f9963fe24d",
+      "name": "Webhook",
+      "webhookId": "d94b9a9d-00b4-4590-97b5-35e237d8d478"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1YKzyirNOxdZGBcAe63sDK56PTs9ojXe8FUJ1Gyj5SIQ",
+          "mode": "list",
+          "cachedResultName": "PersonalBrandManagerData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YKzyirNOxdZGBcAe63sDK56PTs9ojXe8FUJ1Gyj5SIQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YKzyirNOxdZGBcAe63sDK56PTs9ojXe8FUJ1Gyj5SIQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "twitter": "={{ $json.body.twitter }}",
+            "instagram": "={{ $json.body.instagram }}",
+            "youtube": "={{ $json.body.youtube }}",
+            "medium": "={{ $json.body.medium }}",
+            "topics": "={{ $json.body.topics }}",
+            "tone": "={{ $json.body.tone }}",
+            "facebook": "={{ $json.body.facebook }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "facebook",
+              "displayName": "facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "instagram",
+              "displayName": "instagram",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "youtube",
+              "displayName": "youtube",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "medium",
+              "displayName": "medium",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "topics",
+              "displayName": "topics",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tone",
+              "displayName": "tone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -120,
+        -80
+      ],
+      "id": "9ea80f26-ec62-4ca7-9ae6-f867ada19634",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "OqQotfM7BhOiRiSi",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        360,
+        180
+      ],
+      "id": "3c1f9357-80b4-48a9-88c4-98f63e98f75a"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst processedItems = items.map(item => {\n  const youtubeUrl = item.json.youtube || '';\n  const twitterUrl = item.json.twitter || '';\n  const instagramUrl = item.json.instagram || '';\n  const facebookUrl = item.json.facebook || '';  // new\n\n  // Extract YouTube channelId\n  const ytMatch = youtubeUrl.match(/youtube\\.com\\/channel\\/([^\\/\\?\\&]+)/);\n  const channelId = ytMatch ? ytMatch[1] : null;\n\n  // Extract Twitter username (after twitter.com/)\n  const twMatch = twitterUrl.match(/twitter\\.com\\/([^\\/\\?\\&\\/]+)/);\n  const twitterUsername = twMatch ? twMatch[1] : null;\n\n  // Extract Instagram username (after instagram.com/)\n  const igMatch = instagramUrl.match(/instagram\\.com\\/([^\\/\\?\\&\\/]+)/);\n  const instagramUsername = igMatch ? igMatch[1] : null;\n\n  // Extract Facebook username (after facebook.com/)\n  // Handles URLs like https://www.facebook.com/username or https://facebook.com/username\n  const fbMatch = facebookUrl.match(/facebook\\.com\\/([^\\/\\?\\&\\/]+)/);\n  const facebookUsername = fbMatch ? fbMatch[1] : null;\n\n  return {\n    json: {\n      ...item.json,\n      channelId,\n      twitterUsername,\n      instagramUsername,\n      facebookUsername,  // added here\n    }\n  };\n});\n\nreturn processedItems;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        100,
+        -80
+      ],
+      "id": "c29d5fe8-7ef5-41ad-8dbe-29ed0832f44e",
+      "name": "Function Node (extract IDs)"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        320,
+        -80
+      ],
+      "id": "beaad042-1678-4785-959e-fe0e9f144e33",
+      "name": "SplitInBatches"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "726ef5b3-661d-41b2-b8d4-6884ed454d77",
+              "leftValue": "={{ $json.channelId }}",
+              "rightValue": {},
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "cb0442bd-df35-4fec-857c-8df2418db0a8",
+              "leftValue": "={{ $json.channelId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        740,
+        -400
+      ],
+      "id": "944d8227-effc-4632-b1cc-7f035f0f2243",
+      "name": "IF (channelId?)"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "snippet"
+            },
+            {
+              "name": "channelId",
+              "value": "={{ $json.channelId }}"
+            },
+            {
+              "name": "order",
+              "value": "date"
+            },
+            {
+              "name": "maxResults",
+              "value": "5"
+            },
+            {
+              "name": "key",
+              "value": "AIzaSyAV8piV9uI0LSN7ltLOhOROfyqxUvNzozQ"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1040,
+        -380
+      ],
+      "id": "0720486b-d3db-4efa-89d0-0bfcf085c18f",
+      "name": "YouTube API"
+    },
+    {
+      "parameters": {
+        "jsCode": "const videoList = $input.all()[0].json.items;\n\nreturn videoList.map(video => {\n  return {\n    json: {\n      title: video.snippet.title,\n      description: video.snippet.description,\n      publishedAt: video.snippet.publishedAt,\n      thumbnail: video.snippet.thumbnails.high.url,\n      videoUrl: `https://www.youtube.com/watch?v=${video.id.videoId}`,\n      channelTitle: video.snippet.channelTitle\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        -420
+      ],
+      "id": "7633159b-6cb7-4222-b17b-da2ecf1159bd",
+      "name": "Process"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0631ac26-cf79-48f5-8f2d-bbe7517e1ba3",
+              "leftValue": "={{ $json.twitterUsername }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "96a46012-759b-4837-8618-c0979e5c8a9c",
+              "leftValue": "={{ $json.twitterUsername }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        740,
+        -200
+      ],
+      "id": "e6ae0569-031d-43a1-b6e7-e6e088b46391",
+      "name": "IF (twitterUsername?)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all input items\nconst items = $input.all();\n\n// If you want to process only the first item:\nconst firstItem = $input.first();\n\n// Parse stdout from the first item\ntry {\n  const data = JSON.parse(firstItem.json.stdout);\n  return [{ json: data }];\n} catch (error) {\n  return [{\n    json: {\n      error: 'Failed to parse Puppeteer output',\n      raw: firstItem.json.stdout,\n    }\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        -220
+      ],
+      "id": "648e9e97-c806-443e-aec0-a7336d7ebe96",
+      "name": "Process1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0631ac26-cf79-48f5-8f2d-bbe7517e1ba3",
+              "leftValue": "={{ $json.instagramUsername }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "96a46012-759b-4837-8618-c0979e5c8a9c",
+              "leftValue": "={{ $json.instagramUsername }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        740,
+        -20
+      ],
+      "id": "20d2df80-9a66-4ebc-b38d-75fdd79c9c17",
+      "name": "IF (instagramUsername?)"
+    },
+    {
+      "parameters": {
+        "command": "=node C:\\Users\\mehdi\\scrape-twitter.js {{ $json.twitterUsername }}\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        -180
+      ],
+      "id": "478194e5-a764-4f69-9d80-1466c6894632",
+      "name": "Twitter Api"
+    },
+    {
+      "parameters": {
+        "command": "=node C:\\Users\\mehdi\\scrape-instagram.js {{ $json.instagramUsername }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "3c8f8016-bc66-4dc9-b7ef-201a943cb14f",
+      "name": "Instagram Api"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all input items\nconst items = $input.all();\n\n// If you want to process only the first item:\nconst firstItem = $input.first();\n\n// Parse stdout from the first item\ntry {\n  const data = JSON.parse(firstItem.json.stdout);\n  return [{ json: data }];\n} catch (error) {\n  return [{\n    json: {\n      error: 'Failed to parse Puppeteer output',\n      raw: firstItem.json.stdout,\n    }\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        -40
+      ],
+      "id": "88d9e71c-90f4-4243-afb0-33ade4a74216",
+      "name": "Process2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0631ac26-cf79-48f5-8f2d-bbe7517e1ba3",
+              "leftValue": "={{ $json.facebookUsername }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "96a46012-759b-4837-8618-c0979e5c8a9c",
+              "leftValue": "={{ $json.facebookUsername }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        740,
+        160
+      ],
+      "id": "df7fe557-19d1-4e25-aafc-6d77ce86e7e0",
+      "name": "IF (instagramUsername?)1"
+    },
+    {
+      "parameters": {
+        "command": "=node C:\\Users\\mehdi\\scrape-facebook.js {{ $json.facebookUsername }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        180
+      ],
+      "id": "baa81f5d-a123-40e9-a5bb-3f5412dac533",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all input items\nconst items = $input.all();\n\n// If you want to process only the first item:\nconst firstItem = $input.first();\n\n// Parse stdout from the first item\ntry {\n  const data = JSON.parse(firstItem.json.stdout);\n  return [{ json: data }];\n} catch (error) {\n  return [{\n    json: {\n      error: 'Failed to parse Puppeteer output',\n      raw: firstItem.json.stdout,\n    }\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        140
+      ],
+      "id": "6d4bc90b-e49e-492a-b16c-0aeaa51c7c0b",
+      "name": "Process3"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {
+          "clashHandling": {
+            "values": {
+              "resolveClash": "addSuffix"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1620,
+        -320
+      ],
+      "id": "e537f169-1aaf-490a-b9ce-dda0cdfb473f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1YKzyirNOxdZGBcAe63sDK56PTs9ojXe8FUJ1Gyj5SIQ",
+          "mode": "list",
+          "cachedResultName": "PersonalBrandManagerData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YKzyirNOxdZGBcAe63sDK56PTs9ojXe8FUJ1Gyj5SIQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1921573404,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YKzyirNOxdZGBcAe63sDK56PTs9ojXe8FUJ1Gyj5SIQ/edit#gid=1921573404"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Youtube_titles": "={{ $json.title_1_1 }}",
+            "Youtube_descriptions": "={{ $json.description_1_1 }}",
+            "Youtube_publishedAt": "={{ $json.publishedAt_1_1 }}",
+            "Youtube_thumbnails": "={{ $json.thumbnail_1_1 }}",
+            "Youtube_videoUrls": "={{ $json.videoUrl_1_1 }}",
+            "ChannelTitle": "={{ $json.channelTitle_1_1 }}",
+            "Twitter_account": "={{ $json.name_2_1 }}",
+            "Twitter_handle": "={{ $json.handle_2_1 }}",
+            "Twitter_bio": "={{ $json.bio_2_1 }}",
+            "location": "={{ $json.location_2_1 }}",
+            "joinDate": "={{ $json.joinDate_2_1 }}",
+            "Insta_Account": "={{ $json.data_1_2.name }}",
+            "Insta_Bio": "={{ $json.data_1_2.bio }}",
+            "Insta_Posts": "={{ $json.data_1_2.posts }}",
+            "Insta_recentPosts": "={{ $json.data_1_2.recentPosts }}",
+            "Facebook_bio": "={{ $json.data_2_2.bio }}",
+            "Facebook_account": "={{ $json.data_2_2.name }}",
+            "Facebook_about": "={{ $json.data_2_2.about }}",
+            "recentTweets": "={{ $json.recentTweets_2_1 }}"
+          },
+          "matchingColumns": [
+            "Insta_recentPosts"
+          ],
+          "schema": [
+            {
+              "id": "ChannelTitle",
+              "displayName": "ChannelTitle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Youtube_titles",
+              "displayName": "Youtube_titles",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Youtube_descriptions",
+              "displayName": "Youtube_descriptions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Youtube_publishedAt",
+              "displayName": "Youtube_publishedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Youtube_thumbnails",
+              "displayName": "Youtube_thumbnails",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Youtube_videoUrls",
+              "displayName": "Youtube_videoUrls",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Twitter_account",
+              "displayName": "Twitter_account",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Twitter_handle",
+              "displayName": "Twitter_handle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Twitter_bio",
+              "displayName": "Twitter_bio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "location",
+              "displayName": "location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "joinDate",
+              "displayName": "joinDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "recentTweets",
+              "displayName": "recentTweets",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Insta_Account",
+              "displayName": "Insta_Account",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Insta_Bio",
+              "displayName": "Insta_Bio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Insta_Posts",
+              "displayName": "Insta_Posts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Insta_recentPosts",
+              "displayName": "Insta_recentPosts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Facebook_account",
+              "displayName": "Facebook_account",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Facebook_bio",
+              "displayName": "Facebook_bio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Facebook_about",
+              "displayName": "Facebook_about",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2140,
+        -160
+      ],
+      "id": "db1be921-9b8f-44db-b266-00e67003e80c",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "OqQotfM7BhOiRiSi",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {
+          "clashHandling": {
+            "values": {
+              "resolveClash": "addSuffix"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1620,
+        40
+      ],
+      "id": "c54aa5eb-04b5-46fb-88e5-fa2d77378428",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {
+          "clashHandling": {
+            "values": {
+              "resolveClash": "addSuffix"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1900,
+        -160
+      ],
+      "id": "8ac86af6-c4a0-4359-b387-65f4aaadbfae",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1YKzyirNOxdZGBcAe63sDK56PTs9ojXe8FUJ1Gyj5SIQ",
+          "mode": "list",
+          "cachedResultName": "PersonalBrandManagerData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YKzyirNOxdZGBcAe63sDK56PTs9ojXe8FUJ1Gyj5SIQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1921573404,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YKzyirNOxdZGBcAe63sDK56PTs9ojXe8FUJ1Gyj5SIQ/edit#gid=1921573404"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2360,
+        -160
+      ],
+      "id": "dfb72311-e19e-40f9-aa88-9a1296f4c4a6",
+      "name": "Google Sheets2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "OqQotfM7BhOiRiSi",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const first = $input.first().json;\n\nconst memory = `\nUser's Social Presence Summary:\n\nYouTube:\n- Channel Title: ${first.ChannelTitle}\n- Title Example: ${first.Youtube_titles}\n- Description: ${first.Youtube_descriptions}\n- Published At: ${first.Youtube_publishedAt}\n- Thumbnail: ${first.Youtube_thumbnails}\n\nTwitter:\n- Account: ${first.Twitter_account}\n- Handle: ${first.Twitter_handle}\n- Bio: ${first.Twitter_bio}\n- Location: ${first.location}\n- Recent Tweets: ${first.recentTweets}\n\nInstagram:\n- Account: ${first.Insta_Account}\n- Bio: ${first.Insta_Bio}\n- Recent Posts: ${first.Insta_recentPosts}\n\nFacebook:\n- Account: ${first.Facebook_account}\n- Bio: ${first.Facebook_bio}\n- About: ${first.Facebook_about}\n`;\n\nreturn [\n  {\n    json: {\n      memory\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2580,
+        -160
+      ],
+      "id": "6a84bdc2-6f60-4b31-bc66-778482f7c073",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Function Node (extract IDs)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function Node (extract IDs)": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitInBatches": {
+      "main": [
+        [
+          {
+            "node": "IF (channelId?)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF (twitterUsername?)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF (instagramUsername?)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF (instagramUsername?)1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF (channelId?)": {
+      "main": [
+        [
+          {
+            "node": "YouTube API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube API": {
+      "main": [
+        [
+          {
+            "node": "Process",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF (twitterUsername?)": {
+      "main": [
+        [
+          {
+            "node": "Twitter Api",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF (instagramUsername?)": {
+      "main": [
+        [
+          {
+            "node": "Instagram Api",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twitter Api": {
+      "main": [
+        [
+          {
+            "node": "Process1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram Api": {
+      "main": [
+        [
+          {
+            "node": "Process2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF (instagramUsername?)1": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Process3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Process3": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3c3dadc0-db3a-4368-9646-30b26d7574fc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b0af94bad0d61d2709e5de89ff64b10721a8f7c67837b69d81d280fc26274cce"
+  },
+  "id": "ImDnukDaWDCPAL6S",
+  "tags": []
+}

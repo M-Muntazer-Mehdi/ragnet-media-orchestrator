@@ -1,0 +1,363 @@
+{
+  "name": "RAGnet: Content Intelligence Mesh",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -220,
+        -40
+      ],
+      "id": "a04c7808-e92d-4f72-879f-ee9c058f3b37",
+      "name": "When chat message received",
+      "webhookId": "c579a32c-0e00-43dc-818b-0f36981a5253"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        640,
+        -60
+      ],
+      "id": "86d623f8-704d-4e1a-b02e-8bd76e8f7107",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        300
+      ],
+      "id": "c96a445b-a245-4c25-9278-26ac32fffc0b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "AiQTG9mjE6ppCozg",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        300
+      ],
+      "id": "8a5927f4-3780-4b27-9db4-58e437c24879",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "description": "This tool fetches and analyzes social media data (YouTube, Instagram, Twitter, and Facebook) from a Google Sheet. It prepares a summary of a user's online presence and content history. The assistant can use this data to generate platform-specific content ideas such as YouTube titles, captions, Instagram bios, tweet drafts, and posting suggestions based on the user’s content and tone. This tool helps the assistant personalize responses based on real user data.",
+        "workflowId": {
+          "__rl": true,
+          "value": "ImDnukDaWDCPAL6S",
+          "mode": "list",
+          "cachedResultName": "Social Metadata Pipeline"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        300
+      ],
+      "id": "b58886fe-05ed-47dc-985b-4f5fc904fe58",
+      "name": "Call n8n Workflow Tool"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        980,
+        300
+      ],
+      "id": "d9efd2a3-811f-43d4-864e-dab4e8df4fe7",
+      "name": "Wikipedia"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        300
+      ],
+      "id": "272dd755-2315-4d23-9139-def95b91996a",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const userResponse = $json.chatInput || \"\";\n\nconst confirmations = [\"yes\", \"okay\", \"looks good\", \"sure\", \"go ahead\", \"do it\"];\nconst responseNormalized = userResponse.toLowerCase().trim();\n\nconst confirmed = confirmations.some(word => responseNormalized.includes(word));\n\nreturn {\n  confirmed,\n  originalResponse: userResponse\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -40
+      ],
+      "id": "4236d4e3-a5dc-469a-aafe-dded40063475",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6d020474-2b15-4c1a-a386-855b01c498b1",
+              "leftValue": "={{ $json.confirmed }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        220,
+        -40
+      ],
+      "id": "c40dc602-3acb-438b-9782-b7576d2ed133",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "task": "MDI3MjUwODQ4NDgwNjg3Nzc0MjU6MDow",
+        "title": "Schedule Social Media POSTS",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleTasks",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -240
+      ],
+      "id": "b3a6dea7-e393-4b26-a046-781217cf52c1",
+      "name": "Google Tasks",
+      "credentials": {
+        "googleTasksOAuth2Api": {
+          "id": "ARkuP3H8qg2bzZU8",
+          "name": "Google Tasks account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ],
+      "id": "17b0c47d-ffb3-46ff-9e19-cf0c5b517be0",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "PqCIZirRglGSKR5u",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## UPCOMING.....\n**Auto-post content to social media apps**",
+        "height": 240,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "d472e03d-22d6-43f5-bf01-08151cf1decc",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1180,
+        -60
+      ],
+      "id": "7d1f5453-58f3-4f0c-b543-0526e85e827b",
+      "name": "Wait",
+      "webhookId": "28ebf07a-b05b-4018-a923-d0cfc2e6d104"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Google Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Tasks": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0512ba94-5502-44f4-971b-589158fc01ad",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b0af94bad0d61d2709e5de89ff64b10721a8f7c67837b69d81d280fc26274cce"
+  },
+  "id": "3Dbi2shqU2msESx2",
+  "tags": []
+}
