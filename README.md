@@ -16,7 +16,6 @@ This modular pipeline enables automated content extraction, trend-aware generati
 - 📆 Auto-scheduling via Google Calendar and Gmail
 - 🧩 Modular, scalable architecture (no-code/low-code via n8n)
 
-
 ---
 
 ## 🧭 Architecture Overview
@@ -25,13 +24,11 @@ Here’s a visual breakdown of the key workflows in the system:
 
 ### 🔹 RAGnet: Content Intelligence Mesh (Main Workflow)
 
-![RAGnet Workflow Architecture](assets/ragnet-workflow.png)
-
----
+![RAGnet Workflow Architecture](Assets/ragnet-workflow.png)
 
 ### 🔹 Social Metadata Pipeline
 
-![Social Metadata Pipeline](assets/metadata-pipeline.png)
+![Social Metadata Pipeline](Assets/metadata-pipeline.png)
 
 ---
 
@@ -111,3 +108,23 @@ Here’s a visual breakdown of the key workflows in the system:
     - OpenAI API key
     - SERP API key
     - Google Sheets & Google Calendar integrations
+
+---
+
+## 🧱 Built With
+
+- [n8n](https://n8n.io/) – Workflow automation
+- [OpenAI GPT-4o](https://openai.com/api/) – AI model for content generation
+- [LangChain](https://www.langchain.com/) – Framework for context-aware prompting
+- [SERP API](https://serpapi.com/) – Google Search API for keyword intelligence
+- [Puppeteer](https://pptr.dev/) – Headless browser for web scraping
+- [Google Sheets API](https://developers.google.com/sheets/api) – For metadata storage
+- [Google Calendar API](https://developers.google.com/calendar) – For scheduling content
+
+---
+
+## 🔗 Connect
+
+Built by M Muntazer Mehdi <br>
+Let’s connect on [www.linkedin.com/in/m-muntazer-mehdi](https://www.linkedin.com/in/m-muntazer-mehdi/)
+
